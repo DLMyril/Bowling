@@ -15,15 +15,22 @@ object fmFrame: TfmFrame
     ExplicitWidth = 341
     ExplicitHeight = 289
   end
+  object Bevel2: TBevel
+    Left = 5
+    Top = 2
+    Width = 42
+    Height = 39
+    Shape = bsFrame
+  end
   object Bevel1: TBevel
-    Left = 43
+    Left = 48
     Top = 2
     Width = 42
     Height = 39
     Shape = bsFrame
   end
   object bvl1: TBevel
-    Left = 86
+    Left = 90
     Top = 2
     Width = 42
     Height = 39
@@ -43,7 +50,7 @@ object fmFrame: TfmFrame
     ParentFont = False
   end
   object lblBall1: TLabel
-    Left = 99
+    Left = 101
     Top = 3
     Width = 16
     Height = 36
@@ -56,7 +63,7 @@ object fmFrame: TfmFrame
     ParentFont = False
   end
   object lblBall2: TLabel
-    Left = 56
+    Left = 60
     Top = 3
     Width = 16
     Height = 36
@@ -69,7 +76,7 @@ object fmFrame: TfmFrame
     ParentFont = False
   end
   object lblBall3: TLabel
-    Left = 13
+    Left = 18
     Top = 3
     Width = 16
     Height = 36

@@ -1,4 +1,4 @@
-unit FrameForm;
+unit FrameForm; // contains the individual frame display
 
 interface
 
@@ -16,6 +16,7 @@ type
     lblBall3: TLabel;
     shp: TShape;
     lblTotal: TLabel;
+    Bevel2: TBevel;
   private
     { Private declarations }
   public

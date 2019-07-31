@@ -1,4 +1,4 @@
-unit BowlFrameUnit;
+unit BowlFrameUnit; // implements the IBowlFrame interface
 
 interface
 
@@ -7,7 +7,7 @@ uses
   BowlingInt;
 
 type
-  TBowlFrame = class(TInterfacedObject, IBowlFrame)
+  TBowlFrame = class(TInterfacedObject, IBowlFrame) // explanation for items can befound in the BowlingInt unit for this class
   private
     fNextFrame: IBowlFrame;
     fRoll: array[1..3] of integer;
@@ -160,18 +160,18 @@ end;
 
 function TBowlFrame.RollCheck(ARoll: integer): boolean;
 begin
-  result := (ARoll >= 0) and (ARoll <= 10);
+  Result := (ARoll >= 0) and (ARoll <= 10);
   if not result then
     raise EBowlException.Create('A roll of ' + IntToStr(ARoll) +
-                                ' is out of range.  (It must be between 0 and 10 to be valid)');
+                                ' is out of range.  (It must be between 0 and 10 to be valid)');// checked
 end;
 
 function TBowlFrame.RollRangeCheck(AnIdx: integer): boolean;
 begin
-  result := (AnIdx >= 1) and (AnIdx <= 3);
+  Result := (AnIdx >= 1) and (AnIdx <= 3);
   if not result then
     raise EBowlException.Create('The index ' + IntToStr(AnIdx) +
-                                ' to the roll in a frame is out of range.  (It must be between 1 and 3 to be valid)');
+                                ' to the roll in a frame is out of range.  (It must be between 1 and 3 to be valid)'); // unit test
 end;
 
 function TBowlFrame.SecondNextFrame: IBowlFrame;
@@ -191,18 +191,18 @@ begin
       if (NextFrame = nil) then begin // last frame
         if (fRoll[1] = 10) then begin
           fRoll[2] := ARoll;
-        end else begin
+        end else begin // normal frame
           if((fRoll[1] + ARoll) > 10) then begin
             raise EBowlException.Create('Trying to add a ball roll of ' + IntToStr(ARoll) +
-                                        ' would result in more than 10 pins in this frame.');
+                                        ' would result in more than 10 pins in this frame.'); // checked
           end else begin
             fRoll[2] := ARoll;
           end;
         end;
-      end else begin // all other frames
+      end else begin // only reachable during unit testing. Shouldn't reach this code as the rolls haven't created a NextFrame
         if((fRoll[1] + ARoll) > 10) then begin
           raise EBowlException.Create('Trying to add a ball roll of ' + IntToStr(ARoll) +
-                                      ' would result in more than 10 pins in this frame.');
+                                      ' would result in more than 10 pins in this frame.'); // unit test
         end else begin
           fRoll[2] := ARoll;
         end;
@@ -210,18 +210,18 @@ begin
     end else if (fRoll[3] = -1) and (NextFrame = nil) then begin
       if (fRoll[1] = 10) or ((fRoll[1] + fRoll[2]) >= 10) then begin // spare or strike allows the third roll to be entered
         fRoll[3] := ARoll;
-      end else begin
+      end else begin    // whole section only reachable for unit testing.
         if (NextFrame = nil) then begin
           raise EBowlException.Create('Trying to add a ball roll of ' + IntToStr(ARoll) +
-                                      ' past the allowed number of rolls.  The tenth frame is full.');
-        end else begin
-          raise EBowlException.Create('Trying to add a ball roll of ' + IntToStr(ARoll) +  // only for unit testing, shouldn't reach this one.
-                                      ' past the allowed number of rolls.');
+                                      ' past the allowed number of rolls.  The tenth frame is full.');  // unit test
+        end else begin // only reachable during unit testing.
+          raise EBowlException.Create('Trying to add a ball roll of ' + IntToStr(ARoll) +
+                                      ' past the allowed number of rolls.'); // unit test
         end;
       end;
     end else begin
       raise EBowlException.Create('Trying to add a ball roll of ' + IntToStr(ARoll) +
-                                  ' past the allowed number of rolls.');
+                                  ' past the allowed number of rolls.');                 // unit test
     end;
   end;
 end;

@@ -1,4 +1,4 @@
-unit MainForm;
+unit MainForm; // allows the user to manipulate the IGame structure.
 
 interface
 
@@ -233,19 +233,19 @@ begin
     FrameArray[9].lblTotal.Caption := IntToStr(Total);
     BallDisplay := FrameCharacters(ABowlLine.Items[9]);
     if (ABowlLine.Items[9].BowlFrameType(10) = frameStrike) then begin
-      FrameArray[9].lblBall1.Caption := 'X';
+      FrameArray[9].lblBall3.Caption := 'X';
       if (ABowlLine.Items[9].Roll[2] < 10) then
-        FrameArray[9].lblBall1.Caption := IntToStr(ABowlLine.Items[9].Roll[2])
+        FrameArray[9].lblBall2.Caption := IntToStr(ABowlLine.Items[9].Roll[2])
       else
-        FrameArray[9].lblBall1.Caption := 'X';
+        FrameArray[9].lblBall2.Caption := 'X';
       if (ABowlLine.Items[9].Roll[3] < 10) then
         FrameArray[9].lblBall1.Caption := IntToStr(ABowlLine.Items[9].Roll[3])
       else
         FrameArray[9].lblBall1.Caption := 'X';
     end else if (ABowlLine.Items[9].BowlFrameType(10) = frameSpare) then begin
-      FrameArray[9].lblBall1.Caption := IntToStr(ABowlLine.Items[9].Roll[1]);
+      FrameArray[9].lblBall1.Caption := IntToStr(ABowlLine.Items[9].Roll[3]);
       FrameArray[9].lblBall2.Caption := '/';
-      FrameArray[9].lblBall3.Caption := IntToStr(ABowlLine.Items[9].Roll[3]);
+      FrameArray[9].lblBall3.Caption := IntToStr(ABowlLine.Items[9].Roll[1]);
     end else begin
       FrameArray[9].lblBall1.Caption := IntToStr(ABowlLine.Items[9].Roll[1]);
       FrameArray[9].lblBall2.Caption := IntToStr(ABowlLine.Items[9].Roll[2]);

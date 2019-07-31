@@ -13526,8 +13526,8 @@ object frmMain: TfrmMain
   PixelsPerInch = 96
   TextHeight = 14
   object ttlTotalScore: TLabel
-    Left = 416
-    Top = 173
+    Left = 1151
+    Top = 165
     Width = 107
     Height = 23
     Caption = 'Game Score:'
@@ -13539,8 +13539,8 @@ object frmMain: TfrmMain
     ParentFont = False
   end
   object lblTotalScore: TLabel
-    Left = 551
-    Top = 151
+    Left = 1286
+    Top = 143
     Width = 72
     Height = 55
     Caption = '000'
@@ -13683,6 +13683,9 @@ object frmMain: TfrmMain
         ExplicitWidth = 135
         ExplicitHeight = 117
       end
+      inherited Bevel2: TBevel
+        Visible = False
+      end
     end
     inline fmFrame2: TfmFrame
       Left = 136
@@ -13697,6 +13700,9 @@ object frmMain: TfrmMain
       inherited shp: TShape
         Height = 115
         ExplicitHeight = 115
+      end
+      inherited Bevel2: TBevel
+        Visible = False
       end
     end
     inline fmFrame3: TfmFrame
@@ -13713,6 +13719,9 @@ object frmMain: TfrmMain
         Height = 115
         ExplicitHeight = 115
       end
+      inherited Bevel2: TBevel
+        Visible = False
+      end
     end
     inline fmFrame4: TfmFrame
       Left = 406
@@ -13727,6 +13736,9 @@ object frmMain: TfrmMain
       inherited shp: TShape
         Height = 115
         ExplicitHeight = 115
+      end
+      inherited Bevel2: TBevel
+        Visible = False
       end
     end
     inline fmFrame5: TfmFrame
@@ -13746,6 +13758,9 @@ object frmMain: TfrmMain
         ExplicitWidth = 135
         ExplicitHeight = 115
       end
+      inherited Bevel2: TBevel
+        Visible = False
+      end
     end
     inline fmFrame6: TfmFrame
       Left = 676
@@ -13760,6 +13775,11 @@ object frmMain: TfrmMain
       inherited shp: TShape
         Height = 115
         ExplicitHeight = 115
+      end
+      inherited Bevel2: TBevel
+        Top = 3
+        Visible = False
+        ExplicitTop = 3
       end
     end
     inline fmFrame7: TfmFrame
@@ -13776,6 +13796,9 @@ object frmMain: TfrmMain
         Height = 115
         ExplicitHeight = 115
       end
+      inherited Bevel2: TBevel
+        Visible = False
+      end
     end
     inline fmFrame8: TfmFrame
       Left = 946
@@ -13791,6 +13814,9 @@ object frmMain: TfrmMain
         Height = 115
         ExplicitHeight = 115
       end
+      inherited Bevel2: TBevel
+        Visible = False
+      end
     end
     inline fmFrame9: TfmFrame
       Left = 1081
@@ -13805,6 +13831,9 @@ object frmMain: TfrmMain
       inherited shp: TShape
         Height = 115
         ExplicitHeight = 115
+      end
+      inherited Bevel2: TBevel
+        Visible = False
       end
     end
     inline fmFrame10: TfmFrame
@@ -13844,7 +13873,7 @@ object frmMain: TfrmMain
     OnKeyPress = edtRollKeyPress
   end
   object al: TActionList
-    Left = 1312
+    Left = 312
     Top = 152
     object acStart: TAction
       Caption = 'New Line'
@@ -13864,7 +13893,7 @@ object frmMain: TfrmMain
     end
   end
   object mnu: TMainMenu
-    Left = 1280
+    Left = 280
     Top = 152
     object miSetup: TMenuItem
       Action = acStart

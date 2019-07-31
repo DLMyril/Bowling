@@ -1,4 +1,4 @@
-unit GameUnit;
+unit GameUnit; // implements the IGame interface
 
 interface
 
@@ -59,7 +59,7 @@ begin
     Current := FLine[FLine.Count - 1];
     Status := Current.BowlFrameType(FLine.Count);
     if (FLine.Count = 10) and (Status <> frameIncomplete) then begin // last frame with completed status can't be added to
-      raise EBowlException.Create('Trying to add a frame to a line that already has 10 frames.');
+      raise EBowlException.Create('Trying to add a frame to a line that already has 10 frames.'); //checked
     end else begin      // Set Current to the proper frame
       if (Status <> frameIncomplete) then begin
         Current := TBowlFrame.Create; // use new frame and put into the line
