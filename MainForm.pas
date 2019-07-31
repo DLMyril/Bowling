@@ -23,30 +23,35 @@ type
     fmFrame10: TfmFrame;
     al: TActionList;
     mnu: TMainMenu;
-    Button1: TButton;
     acStart: TAction;
     acRoll: TAction;
     acScore: TAction;
-    Button2: TButton;
-    Button3: TButton;
+    btnRoll: TButton;
     miSetup: TMenuItem;
     miBowl: TMenuItem;
     miScore: TMenuItem;
     edtRoll: TEdit;
+    ttlTotalScore: TLabel;
+    lblTotalScore: TLabel;
+    acExit: TAction;
+    miExit: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure acRollExecute(Sender: TObject);
     procedure acScoreExecute(Sender: TObject);
     procedure acStartExecute(Sender: TObject);
+    procedure edtRollKeyPress(Sender: TObject; var Key: Char);
+    procedure acExitExecute(Sender: TObject);
   private
     Game: TGame;
     BowlLine: TBowlLine;
     FrameArray: TList<TfmFrame>;
     function FrameCharacters(AFrame: IBowlFrame): string;
+    procedure Display;
   public
     procedure AppException(Sender: TObject; E: Exception);
     procedure PopulateLine(ABowlLine: TBowlLine);
-    procedure PopulateFrame(ABowlLine: TBowlLine; AFrameIdx: integer);
+    procedure PopulateFrame(var ATotal: integer; ABowlLine: TBowlLine; AFrameIdx: integer);
   end;
 
 var
@@ -61,6 +66,11 @@ uses
 
 { TfrmMain }
 
+procedure TfrmMain.acExitExecute(Sender: TObject);
+begin
+  Close;
+end;
+
 procedure TfrmMain.acRollExecute(Sender: TObject);
 var
   sl: TStringList;
@@ -69,36 +79,55 @@ begin
   sl := TStringList.Create;
   try
     sl.Delimiter := ' ';
-    sl.Text := edtRoll.Text;
+    sl.DelimitedText := edtRoll.Text;
     for i := 0 to (sl.Count - 1) do begin
       Game.Roll(StrToIntDef(sl[i], 0));
     end;
   finally
     sl.Free;
   end;
+  Display;
 end;
 
 procedure TfrmMain.acScoreExecute(Sender: TObject);
 begin
-  BowlLine := Game.ScoreByFrame;
-  PopulateLine(BowlLine);
+  Display;
 end;
 
 procedure TfrmMain.acStartExecute(Sender: TObject);
 begin
   Game.Start;
-  BowlLine.Clear;
+  Display;
 end;
 
 procedure TfrmMain.AppException(Sender: TObject; E: Exception);
 begin
   if E is EBowlException then begin
     ShowMessage(E.Message); // prep for any particular error handling regarding EBowlException
+    AddLogEntry(E.Message);
+    Display;
+  end else if E is EInOutError then begin
+    Application.ShowException(E);
   end else begin
     Application.ShowException(E);
-    Application.Terminate;
+    AddLogEntry(E.Message);
+//    Application.Terminate;
   end;
 
+end;
+
+procedure TfrmMain.Display;
+begin
+  BowlLine := Game.ScoreByFrame;
+  PopulateLine(BowlLine);
+  lblTotalScore.Caption := IntToStr(Game.TotalScore);
+end;
+
+procedure TfrmMain.edtRollKeyPress(Sender: TObject; var Key: Char);
+begin
+  if (Key = #13) then begin
+    acRollExecute(Sender);
+  end;
 end;
 
 procedure TfrmMain.FormCreate(Sender: TObject);
@@ -122,6 +151,11 @@ begin
   FrameArray.Add(fmFrame8);
   FrameArray.Add(fmFrame9);
   FrameArray.Add(fmFrame10);
+
+  BowlLine.Clear;
+  PopulateLine(BowlLine);
+  lblTotalScore.Caption := '0';
+
   for i := 1 to System.ParamCount do begin // check command line flags
     if (copy(Uppercase(System.ParamStr(i)), 1, 4) = 'log=') then begin // log file name
       LogFileName := copy(System.ParamStr(i), 5, length(System.ParamStr(i)));
@@ -141,10 +175,24 @@ begin
   FrameArray.Clear;
 end;
 
-function TfrmMain.FrameCharacters(AFrame: IBowlFrame): string;  // 2 character score string in display order for regular frames
+function TfrmMain.FrameCharacters(AFrame: IBowlFrame): string;  // 2 character score string in display order for regular frames; not used for last frame
+var
+  FrameType: TBowlFrameType;
+  WorkStr: string;
 begin
-  case AFrame.BowlFrameType(False) of // uses a standard frame
-    frameOpen: Result := IntToStr(AFrame.Roll[1]) + IntToStr(AFrame.Roll[2]);
+  FrameType := AFrame.BowlFrameType(0); // Doesn't matter what frame in this case.
+  case FrameType of // uses a standard frame
+    frameIncomplete,
+    frameOpen: begin
+      if (AFrame.Roll[1] >= 0) then
+        WorkStr := IntToStr(AFrame.Roll[1])
+      else
+        WorkStr := ' ';
+      if (AFrame.Roll[2] >= 0) then
+        Result := WorkStr + IntToStr(AFrame.Roll[2])
+      else
+        Result := WorkStr + ' ';
+    end;
     frameSpare: Result := IntToStr(AFrame.Roll[1]) + '/';
     frameStrike: Result := ' X';
   else
@@ -152,45 +200,59 @@ begin
   end;
 end;
 
-procedure TfrmMain.PopulateFrame(ABowlLine: TBowlLine; AFrameIdx: integer);
+procedure TfrmMain.PopulateFrame(var ATotal: integer; ABowlLine: TBowlLine; AFrameIdx: integer);
 var
   BallDisplay: string;
+  Score: integer;
 begin
-  FrameArray[AFrameIdx].lblScore.Caption := IntToStr(ABowlLine.Items[AFrameIdx].CurrentScore(AFrameIdx = 9));
-  BallDisplay := FrameCharacters(ABowlLine.Items[AFrameIdx]);
-  FrameArray[AFrameIdx].lblBall1.Caption := BallDisplay[1];
-  FrameArray[AFrameIdx].lblBall2.Caption := BallDisplay[2];
-  FrameArray[AFrameIdx].lblBall3.Caption := '';
+  if (AFrameIdx < ABowlLine.Count) then begin
+    BallDisplay := FrameCharacters(ABowlLine.Items[AFrameIdx]);
+    Score := ABowlLine.Items[AFrameIdx].CurrentScore(AFrameIdx + 1);
+    FrameArray[AFrameIdx].Populate(Score, ATotal, BallDisplay[2], BallDisplay[1], '');
+    if (ABowlLine.Items[AFrameIdx].BowlFrameType(AFrameIdx + 1) <> frameIncomplete) then // add in total of completed frames
+      ATotal := ATotal + Score;
+  end else begin
+    FrameArray[AFrameIdx].Blank;
+  end;
 end;
 
 procedure TfrmMain.PopulateLine(ABowlLine: TBowlLine);
 var
   i: integer;
   BallDisplay: string;
+  Total: integer; // this is not the totalscore from the IGame, but the score totalled by the GUI
 begin
+  Total := 0;
   for i := 0 to 8 do begin
-    PopulateFrame(ABowlLine, i);
+    PopulateFrame(Total, ABowlLine, i);
   end;
-  FrameArray[9].lblScore.Caption := IntToStr(ABowlLine.Items[9].CurrentScore(True));
-  BallDisplay := FrameCharacters(ABowlLine.Items[9]);
-  if (ABowlLine.Items[9].BowlFrameType(True) = frameStrike) then begin
-    FrameArray[9].lblBall1.Caption := 'X';
-    if (ABowlLine.Items[9].Roll[2] < 10) then
-      FrameArray[9].lblBall1.Caption := IntToStr(ABowlLine.Items[9].Roll[2])
-    else
+  if ABowlLine.Count = 10 then begin // last frame needs to exist
+    i := ABowlLine.Items[9].CurrentScore(10);
+    FrameArray[9].lblScore.Caption := IntToStr(i);
+    Total := Total + i; // normal frames handle this in PopulateFrame
+    FrameArray[9].lblTotal.Caption := IntToStr(Total);
+    BallDisplay := FrameCharacters(ABowlLine.Items[9]);
+    if (ABowlLine.Items[9].BowlFrameType(10) = frameStrike) then begin
       FrameArray[9].lblBall1.Caption := 'X';
-    if (ABowlLine.Items[9].Roll[3] < 10) then
-      FrameArray[9].lblBall1.Caption := IntToStr(ABowlLine.Items[9].Roll[3])
-    else
-      FrameArray[9].lblBall1.Caption := 'X';
-  end else if (ABowlLine.Items[9].BowlFrameType(True) = frameSpare) then begin
-    FrameArray[9].lblBall1.Caption := IntToStr(ABowlLine.Items[9].Roll[1]);
-    FrameArray[9].lblBall2.Caption := '/';
-    FrameArray[9].lblBall3.Caption := IntToStr(ABowlLine.Items[9].Roll[3]);
+      if (ABowlLine.Items[9].Roll[2] < 10) then
+        FrameArray[9].lblBall1.Caption := IntToStr(ABowlLine.Items[9].Roll[2])
+      else
+        FrameArray[9].lblBall1.Caption := 'X';
+      if (ABowlLine.Items[9].Roll[3] < 10) then
+        FrameArray[9].lblBall1.Caption := IntToStr(ABowlLine.Items[9].Roll[3])
+      else
+        FrameArray[9].lblBall1.Caption := 'X';
+    end else if (ABowlLine.Items[9].BowlFrameType(10) = frameSpare) then begin
+      FrameArray[9].lblBall1.Caption := IntToStr(ABowlLine.Items[9].Roll[1]);
+      FrameArray[9].lblBall2.Caption := '/';
+      FrameArray[9].lblBall3.Caption := IntToStr(ABowlLine.Items[9].Roll[3]);
+    end else begin
+      FrameArray[9].lblBall1.Caption := IntToStr(ABowlLine.Items[9].Roll[1]);
+      FrameArray[9].lblBall2.Caption := IntToStr(ABowlLine.Items[9].Roll[2]);
+      FrameArray[9].lblBall3.Caption := '';
+    end;
   end else begin
-    FrameArray[9].lblBall1.Caption := IntToStr(ABowlLine.Items[9].Roll[1]);
-    FrameArray[9].lblBall2.Caption := IntToStr(ABowlLine.Items[9].Roll[2]);
-    FrameArray[9].lblBall3.Caption := '';
+    FrameArray[9].Blank;
   end;
 end;
 

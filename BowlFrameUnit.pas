@@ -18,9 +18,9 @@ type
     procedure LinkNextFrame(ANextFrame: IBowlFrame = nil);
     function NextFrame: IBowlFrame;
     function SecondNextFrame: IBowlFrame;
-    function BowlFrameType(IsLastFrame: boolean = False): TBowlFrameType;
+    function BowlFrameType(WhichFrame: integer): TBowlFrameType;
     function AddRoll(ARoll: integer): boolean; // add a roll to the next available position in the frame, or return false;
-    function CurrentScore(IsLastFrame: boolean = False): integer;
+    function CurrentScore(WhichFrame: integer): integer;
     constructor Create;
     property Roll[idx: integer]: integer read GetRoll;
   end;
@@ -42,12 +42,12 @@ begin
   fNextFrame := nil;
 end;
 
-function TBowlFrame.CurrentScore(IsLastFrame: boolean): integer;
+function TBowlFrame.CurrentScore(WhichFrame: integer): integer;
 var
   temp: integer;
 begin
   Result := 0;
-  case BowlFrameType(IsLastFrame) of
+  case BowlFrameType(WhichFrame) of
     frameIncomplete,
     frameOpen: begin
       if Roll[1] <> -1 then Result := Roll[1];
@@ -55,7 +55,7 @@ begin
     end;
     frameSpare: begin
       Result := 10;
-      if IsLastFrame then begin
+      if (WhichFrame = 10) then begin
         if (Roll[3] > -1) then begin
           Result := Result + Roll[3];
         end;
@@ -69,7 +69,18 @@ begin
     end;
     frameStrike: begin
       Result := 10;
-      if IsLastFrame then begin
+      if (WhichFrame = 9) then begin
+        if assigned(fNextFrame) then begin
+          temp := fNextFrame.Roll[1];
+          if (temp > -1) then begin
+            Result := Result + temp;
+          end;
+          temp := fNextFrame.Roll[2];
+          if (temp > -1) then begin
+            Result := Result + temp;
+          end;
+        end;
+      end else if (WhichFrame = 10) then begin
         if (Roll[2] > -1) then begin
           Result := Result + Roll[2];
         end;
@@ -86,6 +97,11 @@ begin
             if (SecondNextFrame <> nil) then begin
               Result := Result + SecondNextFrame.Roll[1];
             end;
+          end else begin
+            temp := fNextFrame.Roll[2];
+            if (temp > -1) then begin
+              Result := Result + temp;
+            end;
           end;
         end;
       end;
@@ -93,10 +109,10 @@ begin
   end;
 end;
 
-function TBowlFrame.BowlFrameType(IsLastFrame: boolean): TBowlFrameType;
+function TBowlFrame.BowlFrameType(WhichFrame: integer): TBowlFrameType;
 begin
   Result := frameIncomplete;
-  if IsLastFrame then begin
+  if (WhichFrame = 10) then begin
     if (fRoll[2] = -1) then begin // it's incomplete no matter what
       Result := frameIncomplete;
     end else if (fRoll[3] <> -1) then begin // it's a spare or strike
@@ -176,7 +192,7 @@ begin
         if (fRoll[1] = 10) then begin
           fRoll[2] := ARoll;
         end else begin
-          if(fRoll[1] + ARoll > 10) then begin
+          if((fRoll[1] + ARoll) > 10) then begin
             raise EBowlException.Create('Trying to add a ball roll of ' + IntToStr(ARoll) +
                                         ' would result in more than 10 pins in this frame.');
           end else begin
@@ -184,7 +200,7 @@ begin
           end;
         end;
       end else begin // all other frames
-        if(fRoll[1] + ARoll > 10) then begin
+        if((fRoll[1] + ARoll) > 10) then begin
           raise EBowlException.Create('Trying to add a ball roll of ' + IntToStr(ARoll) +
                                       ' would result in more than 10 pins in this frame.');
         end else begin
@@ -192,14 +208,14 @@ begin
         end;
       end;
     end else if (fRoll[3] = -1) and (NextFrame = nil) then begin
-      if (fRoll[1] = 10) or ((fRoll[1] + fRoll[2]) > 10) then begin
+      if (fRoll[1] = 10) or ((fRoll[1] + fRoll[2]) >= 10) then begin // spare or strike allows the third roll to be entered
         fRoll[3] := ARoll;
       end else begin
         if (NextFrame = nil) then begin
           raise EBowlException.Create('Trying to add a ball roll of ' + IntToStr(ARoll) +
                                       ' past the allowed number of rolls.  The tenth frame is full.');
         end else begin
-          raise EBowlException.Create('Trying to add a ball roll of ' + IntToStr(ARoll) +  // for testing, shouldn't reach this one.
+          raise EBowlException.Create('Trying to add a ball roll of ' + IntToStr(ARoll) +  // only for unit testing, shouldn't reach this one.
                                       ' past the allowed number of rolls.');
         end;
       end;

@@ -15,14 +15,36 @@ type
     lblBall2: TLabel;
     lblBall3: TLabel;
     shp: TShape;
+    lblTotal: TLabel;
   private
     { Private declarations }
   public
-    { Public declarations }
+    procedure Populate(AScore, ATotal: integer; b1, b2, b3: string);
+    procedure Blank;
   end;
 
 implementation
 
 {$R *.dfm}
+
+{ TfmFrame }
+
+procedure TfmFrame.Blank;
+begin
+  lblScore.Caption := '';
+  lblBall1.Caption := '';
+  lblBall2.Caption := '';
+  lblBall3.Caption := '';
+  lblTotal.Caption := '';
+end;
+
+procedure TfmFrame.Populate(AScore, ATotal: integer; b1, b2, b3: string);
+begin
+  lblScore.Caption := IntToStr(AScore);
+  lblTotal.Caption := IntToStr(ATotal + AScore);
+  lblBall1.Caption := b1;
+  lblBall2.Caption := b2;
+  lblBall3.Caption := b3;
+end;
 
 end.

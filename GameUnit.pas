@@ -51,20 +51,21 @@ procedure TGame.Roll(ARoll: integer);
 var
   Current: IBowlFrame;
   Status: TBowlFrameType;
-  LastFrame: boolean;
 begin
-  LastFrame := (FLine.Count = 10);
-  Status := FLine[FLine.Count - 1].BowlFrameType(LastFrame);
-  if (FLine.Count = 10) and (Status <> frameIncomplete) then begin // last frame with completed status can't be added to
-    raise EBowlException.Create('Trying to add a frame to a line that already has 10 frames.');
+  if (FLine.Count = 0) then begin
+    Current := TBowlFrame.Create; // use new frame and put into the line
+    FLine.Add(Current);
   end else begin
-    // Set Current to the proper frame
-    if (Status = frameIncomplete) or (Current.Roll[1] = -1) then begin // using incomplete frame, second condition shouldn't happen, but...
-      Current := FLine[FLine.Count - 1];
-    end else begin
-      Current := TBowlFrame.Create; // use new frame and put into the line
-      FLine[FLine.Count - 1].LinkNextFrame(Current);
-      FLine.Add(Current);
+    Current := FLine[FLine.Count - 1];
+    Status := Current.BowlFrameType(FLine.Count);
+    if (FLine.Count = 10) and (Status <> frameIncomplete) then begin // last frame with completed status can't be added to
+      raise EBowlException.Create('Trying to add a frame to a line that already has 10 frames.');
+    end else begin      // Set Current to the proper frame
+      if (Status <> frameIncomplete) then begin
+        Current := TBowlFrame.Create; // use new frame and put into the line
+        FLine[FLine.Count - 1].LinkNextFrame(Current);
+        FLine.Add(Current);
+      end;
     end;
   end;
   Current.AddRoll(ARoll);
@@ -81,7 +82,7 @@ var
 begin
   Result := 0;
   for i := 0 to (FLine.Count - 1) do
-    Result := Result + FLine[i].CurrentScore(i = (FLine.Count - 1));
+    Result := Result + FLine[i].CurrentScore(i + 1);
 end;
 
 end.

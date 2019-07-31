@@ -30,24 +30,24 @@ object fmFrame: TfmFrame
     Shape = bsFrame
   end
   object lblScore: TLabel
-    Left = 37
-    Top = 47
-    Width = 48
-    Height = 55
+    Left = 13
+    Top = 63
+    Width = 22
+    Height = 23
     Caption = '00'
     Font.Charset = DEFAULT_CHARSET
-    Font.Color = clWindowText
-    Font.Height = -48
+    Font.Color = clFuchsia
+    Font.Height = -21
     Font.Name = 'Times New Roman'
     Font.Style = []
     ParentFont = False
   end
   object lblBall1: TLabel
-    Left = 91
+    Left = 99
     Top = 3
-    Width = 32
+    Width = 16
     Height = 36
-    Caption = '00'
+    Caption = '0'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -32
@@ -56,11 +56,11 @@ object fmFrame: TfmFrame
     ParentFont = False
   end
   object lblBall2: TLabel
-    Left = 48
-    Top = 5
-    Width = 32
+    Left = 56
+    Top = 3
+    Width = 16
     Height = 36
-    Caption = '00'
+    Caption = '0'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -32
@@ -69,14 +69,27 @@ object fmFrame: TfmFrame
     ParentFont = False
   end
   object lblBall3: TLabel
-    Left = 5
+    Left = 13
     Top = 3
-    Width = 32
+    Width = 16
     Height = 36
-    Caption = '00'
+    Caption = '0'
     Font.Charset = DEFAULT_CHARSET
     Font.Color = clWindowText
     Font.Height = -32
+    Font.Name = 'Times New Roman'
+    Font.Style = []
+    ParentFont = False
+  end
+  object lblTotal: TLabel
+    Left = 57
+    Top = 47
+    Width = 72
+    Height = 55
+    Caption = '000'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -48
     Font.Name = 'Times New Roman'
     Font.Style = []
     ParentFont = False

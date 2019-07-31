@@ -14,6 +14,7 @@ uses
 begin
   Application.Initialize;
   Application.MainFormOnTaskbar := True;
+  Application.Title := 'Bowling Exercise';
   Application.CreateForm(TfrmMain, frmMain);
   Application.Run;
 end.
